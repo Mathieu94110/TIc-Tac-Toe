@@ -1,29 +1,31 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ImageBackground, Alert } from "react-native";
-import background from "./assets/background.jpeg";
 import Cell from "./src/components/Cell";
+import {
+  GameType,
+  PossiblePosition,
+  SignItem,
+} from "./src/components/types/types";
+import background from "./assets/background.jpeg";
 
-const emptyMap = [
+const emptyMap: SignItem[][] = [
   ["", "", ""], // 1st row
   ["", "", ""], // 2nd row
   ["", "", ""], // 3rd row
 ];
 
-const copyArray = (original: any) => {
-  console.log("ghe");
-  console.log(original);
-  const copy = original.map((arr: any) => {
+const copyArray = (original: SignItem[][]) => {
+  const copy = original.map((arr: SignItem[]) => {
     return arr.slice();
   });
-  console.log(copy);
   return copy;
 };
 
 export default function App() {
-  const [map, setMap] = useState(emptyMap);
-  const [currentTurn, setCurrentTurn] = useState("x");
-  const [gameMode, setGameMode] = useState("BOT_MEDIUM"); // LOCAL, BOT_EASY, BOT_MEDIUM;
+  const [map, setMap] = useState<SignItem[][]>(emptyMap);
+  const [currentTurn, setCurrentTurn] = useState<SignItem>("x");
+  const [gameMode, setGameMode] = useState<GameType>("BOT_EASY");
 
   useEffect(() => {
     if (currentTurn === "o" && gameMode !== "LOCAL") {
@@ -40,9 +42,9 @@ export default function App() {
     }
   }, [map]);
 
-  const onPress = (rowIndex, columnIndex) => {
+  const updateMap = (rowIndex: number, columnIndex: number) => {
     if (map[rowIndex][columnIndex] !== "") {
-      Alert.alert("Position already occupied");
+      Alert.alert("Position déjà occupée !");
       return;
     }
 
@@ -55,7 +57,7 @@ export default function App() {
     setCurrentTurn(currentTurn === "x" ? "o" : "x");
   };
 
-  const getWinner = (winnerMap) => {
+  const getWinner = (winnerMap: SignItem[][]) => {
     // Check rows
     for (let i = 0; i < 3; i++) {
       const isRowXWinning = winnerMap[i].every((cell) => cell === "x");
@@ -122,19 +124,19 @@ export default function App() {
 
   const checkTieState = () => {
     if (!map.some((row) => row.some((cell) => cell === ""))) {
-      Alert.alert(`It's a tie`, `tie`, [
+      Alert.alert(`Aucun gagnant`, `Terminer`, [
         {
-          text: "Restart",
+          text: "Rejouer",
           onPress: resetGame,
         },
       ]);
     }
   };
 
-  const gameWon = (player) => {
-    Alert.alert(`Huraaay`, `Player ${player} won`, [
+  const gameWon = (player: Omit<SignItem, "">) => {
+    Alert.alert(`Partie terminée`, `Le joueur ${player} a gagné`, [
       {
-        text: "Restart",
+        text: "Rejouer",
         onPress: resetGame,
       },
     ]);
@@ -151,7 +153,7 @@ export default function App() {
 
   const botTurn = () => {
     // collect all possible options
-    const possiblePositions = [];
+    const possiblePositions: PossiblePosition[] = [];
     map.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         if (cell === "") {
@@ -200,7 +202,7 @@ export default function App() {
     }
 
     if (chosenOption) {
-      onPress(chosenOption.row, chosenOption.col);
+      updateMap(chosenOption.row, chosenOption.col);
     }
   };
 
@@ -219,7 +221,7 @@ export default function App() {
             top: 50,
           }}
         >
-          Current Turn: {currentTurn.toUpperCase()}
+          Tour actuel: {currentTurn.toUpperCase()}
         </Text>
         <View style={styles.map}>
           {map.map((row, rowIndex) => (
@@ -228,7 +230,7 @@ export default function App() {
                 <Cell
                   key={`row-${rowIndex}-col-${columnIndex}`}
                   cell={cell}
-                  onPress={() => onPress(rowIndex, columnIndex)}
+                  onPress={() => updateMap(rowIndex, columnIndex)}
                 />
               ))}
             </View>

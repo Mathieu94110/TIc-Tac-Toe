@@ -1,8 +1,9 @@
 import React from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import Cross from "./Cross";
+import { CellTypes } from "./types/types";
 
-const Cell = (props: any) => {
+const Cell = (props: CellTypes) => {
   const { cell, onPress } = props;
   return (
     <Pressable onPress={() => onPress()} style={styles.cell}>
